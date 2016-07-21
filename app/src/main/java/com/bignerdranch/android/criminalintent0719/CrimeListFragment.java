@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -29,7 +30,8 @@ public class CrimeListFragment extends Fragment {
 
 
 
-    private class CrimeHolder extends  RecyclerView.ViewHolder{
+    private class CrimeHolder extends  RecyclerView.ViewHolder
+    implements  View.OnClickListener{
         private Crime mCrime;
 
         public void bindCrime(Crime crime){  //CrimeHolder에서 뷰와 데이터 결합하기
@@ -44,6 +46,7 @@ public class CrimeListFragment extends Fragment {
 
         public CrimeHolder(View itemView){
             super(itemView);
+            itemView.setOnClickListener(this);
 
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_tem_crime_title_text_view);
             mDateTextView = ( TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
@@ -52,6 +55,11 @@ public class CrimeListFragment extends Fragment {
             // 시간이 걸릴 수 있다. 따라서 여기서는 onCreateViewHolder에서만 crimeHolder 생성자를 호출한 후 결과로
             //반환되는 뷰 객체 참조를 변수에 저장한다.
 
+        }
+
+        @Override
+        public void onClick(View view) {
+            Toast.makeText(getActivity(),mCrime.getTitle()+" 선택됨",Toast.LENGTH_SHORT).show();
         }
     }
 
