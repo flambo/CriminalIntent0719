@@ -1,5 +1,6 @@
 package com.bignerdranch.android.criminalintent0719;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,7 +13,10 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by 이임경 on 2016-07-20.
@@ -24,22 +28,55 @@ public class CrimeListFragment extends Fragment {
     //아직까지는 빈껍데기의 프래그먼트이다. 9장 뒤에서 함.
     //SingleFragmentActivity는 이 책 전반에 걸쳐 코드를 입력하는 노력과 시간을 많이 절약해줄 것이다.
 
-
+private  static final int REQUEST_CRIME = 1;
     private RecyclerView mCrimeRecyclerView;
     private  CrimeAdapter mAdapter;
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_crime_list,container,false);
+        mCrimeRecyclerView = (RecyclerView)view.findViewById(R.id.crime_recycler_view);
+        mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+
+        updateUI();
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
+    private  void updateUI(){
+
+        UUID numId;
+        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        List<Crime>crimes = crimeLab.getCrimes();
+
+        if( mAdapter == null){
+            mAdapter = new CrimeAdapter(crimes);
+            mCrimeRecyclerView.setAdapter(mAdapter);
+        }
+        else{
+
+            //어떤위치의 항목이 변경되었는지를 알아내고 그것을 다시 로드하는 것이 Ch10 챌린지이다!! ???
+           /* for(int i=0;i<crimes.size();i++){
+
+            }*/
+            mAdapter.notifyDataSetChanged();
+
+        }
+
+
+    }
 
 
     private class CrimeHolder extends  RecyclerView.ViewHolder
     implements  View.OnClickListener{
         private Crime mCrime;
-
-        public void bindCrime(Crime crime){  //CrimeHolder에서 뷰와 데이터 결합하기
-            mCrime = crime;
-            mTitleTextView.setText(mCrime.getTitle());
-            mDateTextView.setText(mCrime.getDate().toString());
-            mSolvedCheckBox.setChecked(mCrime.isSolved());
-        }
         private TextView mTitleTextView;
         private TextView mDateTextView;
         private CheckBox mSolvedCheckBox;
@@ -48,7 +85,7 @@ public class CrimeListFragment extends Fragment {
             super(itemView);
             itemView.setOnClickListener(this);
 
-            mTitleTextView = (TextView) itemView.findViewById(R.id.list_tem_crime_title_text_view);
+            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
             mDateTextView = ( TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
             mSolvedCheckBox = (CheckBox)itemView.findViewById(R.id.list_item_crime_solved_check_box);
             //우리의 ViewHolder가 생성되는 곳이 여기다. findViewById(int)메소드 실행은 지정된 ID를 갖는 뷰를 찾느라
@@ -57,10 +94,35 @@ public class CrimeListFragment extends Fragment {
 
         }
 
+        public void bindCrime(Crime crime){  //CrimeHolder에서 뷰와 데이터 결합하기
+            mCrime = crime;
+            mTitleTextView.setText(mCrime.getTitle());
+           // mDateTextView.setText(mCrime.getDate().toString());
+            Date now = new Date();
+            mCrime.setDate(now);
+            SimpleDateFormat sdf = new SimpleDateFormat("E요일,  MM dd,yyyy");
+            mDateTextView.setText(sdf.format(now));
+            mSolvedCheckBox.setChecked(mCrime.isSolved());
+        }
+
+
+
+
         @Override
         public void onClick(View view) {
-            Toast.makeText(getActivity(),mCrime.getTitle()+" 선택됨",Toast.LENGTH_SHORT).show();
+          /*  Intent intent = new Intent(getActivity(),CrimeActivity.class);*/
+             //Crime객체 Id를 전달하는 newIntent()메소드를 사용하도록 CrimeHolder를 변경한다.
+            Intent intent = CrimeActivity.newIntent(getActivity(),mCrime.getId());
+            //startActivity(intent);
+            startActivityForResult(intent,REQUEST_CRIME);
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+       if(requestCode == REQUEST_CRIME){
+           //결과 처리 코드
+       }
     }
 
     private class CrimeAdapter extends  RecyclerView.Adapter<CrimeHolder>{
@@ -95,23 +157,7 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-      View view = inflater.inflate(R.layout.fragment_crime_list,container,false);
-        mCrimeRecyclerView = (RecyclerView)view.findViewById(R.id.crime_recycler_view);
-        mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
-        updateUI();
-        return view;
-    }
 
-    private  void updateUI(){
-        CrimeLab crimeLab = CrimeLab.get(getActivity());
-        List<Crime>crimes = crimeLab.getCrimes();
-
-        mAdapter = new CrimeAdapter(crimes);
-        mCrimeRecyclerView.setAdapter(mAdapter);
-    }
 }
