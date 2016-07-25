@@ -1,8 +1,10 @@
 package com.bignerdranch.android.criminalintent0719;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -26,9 +28,17 @@ public class CrimeFragment extends Fragment{
     //Crime 인스턴스의 멤버 변수와 Fragment.onCreate(Bundle)의 구현코드를 추가하자.
 
     private  static final String ARG_CRIME_ID="crime_id";
+    private static  final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_TIME ="DialogTime";
+
+    private  static final int REQUEST_DATE = 0;
+    private  static final int REQUEST_TIME = 1;
+
+
     private  Crime mCrime;
     private EditText mTitleField;
     private Button mDateButton;
+    private Button mTimeButton;
     private CheckBox mSolvedCheckBox;
 
 
@@ -56,9 +66,9 @@ public class CrimeFragment extends Fragment{
     }
 
 
-    @Nullable
+
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
 
         //return super.onCreateView(inflater, container, savedInstanceState);
 
@@ -96,15 +106,37 @@ public class CrimeFragment extends Fragment{
         });
 
         mDateButton = (Button)v.findViewById(R.id.crime_date);//버튼의 객체 참조를 얻고
-     //   mDateButton.setText(mCrime.getDate().toString());//그것의 텍스트를 범죄 발생일자로 지정한 후
-        mDateButton.setEnabled(false);//비활성화 한다.
+        updateDate();
+        //mDateButton.setEnabled(false);//비활성화 한다.
+    mDateButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            FragmentManager manager = getFragmentManager();
+            //DatePickerFragment dialog = new DatePickerFragment();
+            DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
+            dialog.setTargetFragment(CrimeFragment.this,REQUEST_DATE);
+            dialog.show(manager,DIALOG_DATE);
+        }
+    });
 
 
-        Date now = new Date();
-        mCrime.setDate(now);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("E요일,  MM dd,yyyy");
-        mDateButton.setText(sdf.format(now));
+        mTimeButton = (Button)v.findViewById(R.id.crime_time);//버튼의 객체 참조를 얻고
+        updateTime();
+
+        mTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager manager = getFragmentManager();
+                TimePickerFragement dialog = TimePickerFragement
+                        .newInstance(mCrime.getTime());
+                dialog.setTargetFragment(CrimeFragment.this , REQUEST_TIME);
+                dialog.show(manager, DIALOG_TIME);
+            }
+        });
+
+
+
 
         mSolvedCheckBox = (CheckBox) v.findViewById(R.id.crime_solved);
         mSolvedCheckBox.setChecked(mCrime.isSolved());
@@ -117,5 +149,38 @@ public class CrimeFragment extends Fragment{
             }
         });
         return  v;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+       if( resultCode != Activity.RESULT_OK){
+           return;
+       }
+        if( requestCode == REQUEST_DATE){
+            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+            mCrime.setDate(date);
+            updateDate();
+        }
+        if( requestCode == REQUEST_TIME){
+            Date time = (Date) data
+                    .getSerializableExtra(TimePickerFragement.EXTRA_DATE);
+            mCrime.setTime(time);
+            updateTime();
+        }
+    }
+
+    private void updateDate() {
+
+        //String date = mCrime.getDate().toString();
+        Date now = mCrime.getDate();
+        SimpleDateFormat sdf = new SimpleDateFormat("E요일,  MM dd,yyyy");
+        mDateButton.setText(sdf.format(now));
+       // mDateButton.setText(mCrime.getDate().toString());
+    }
+
+    private void updateTime() {
+        Date now = mCrime.getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("h:mm aa");
+        mTimeButton.setText(sdf.format(now));
     }
 }

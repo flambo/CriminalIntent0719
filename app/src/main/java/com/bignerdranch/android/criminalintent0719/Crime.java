@@ -11,6 +11,7 @@ public class Crime {
     private UUID mId;
     private  String mTitle;
     private Date mDate;//범죄가 발생한 날짜
+    private Date mTime;
     private  boolean mSolved;//범죄가 해결되었는지 여부
 
 
@@ -18,6 +19,7 @@ public class Crime {
         //고유한 식별자를 생성한다.
         mId = UUID.randomUUID();
         mDate = new Date();
+        mTime = new Date();
     }
 
     public UUID getId() {
@@ -47,5 +49,13 @@ public class Crime {
 
     public void setSolved(boolean solved) {
         mSolved = solved;
+    }
+
+    public Date getTime() {
+        return mTime;
+    }
+
+    public void setTime(Date time) {
+        mTime = time;
     }
 }

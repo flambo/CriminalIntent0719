@@ -2,7 +2,6 @@ package com.bignerdranch.android.criminalintent0719;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -32,9 +31,8 @@ private  static final int REQUEST_CRIME = 1;
     private RecyclerView mCrimeRecyclerView;
     private  CrimeAdapter mAdapter;
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime_list,container,false);
         mCrimeRecyclerView = (RecyclerView)view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -112,7 +110,9 @@ private  static final int REQUEST_CRIME = 1;
         public void onClick(View view) {
           /*  Intent intent = new Intent(getActivity(),CrimeActivity.class);*/
              //Crime객체 Id를 전달하는 newIntent()메소드를 사용하도록 CrimeHolder를 변경한다.
-            Intent intent = CrimeActivity.newIntent(getActivity(),mCrime.getId());
+            //Intent intent = CrimeActivity.newIntent(getActivity(),mCrime.getId());
+
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
             //startActivity(intent);
             startActivityForResult(intent,REQUEST_CRIME);
         }
